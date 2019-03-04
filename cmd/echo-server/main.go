@@ -9,9 +9,9 @@ import (
 	"os"
 
 	"github.com/gorilla/websocket"
-	"strings"
-	"sort"
 	"log"
+	"sort"
+	"strings"
 	"time"
 )
 
@@ -20,18 +20,18 @@ func RunServer(addr string, sslAddr string, ssl map[string]string) chan error {
 	errs := make(chan error)
 
 	go func() {
-		fmt.Printf("Echo server listening on port %s.\n", addr)
+		fmt.Printf("Echo server starting on port %s.\n", addr)
 		if err := http.ListenAndServe(addr, nil); err != nil {
-            		errs <- err
-        	}
+			errs <- err
+		}
 
 	}()
 
 	go func() {
-		fmt.Printf("Echo server listening on ssl port %s.\n", sslAddr)
+		fmt.Printf("Echo server starting on ssl port %s.\n", sslAddr)
 		if err := http.ListenAndServeTLS(sslAddr, ssl["cert"], ssl["key"], nil); err != nil {
-            		errs <- err
-        	}
+			fmt.Printf("Failed to start TLS because:  %s.\n", err)
+		}
 	}()
 
 	return errs
@@ -51,14 +51,14 @@ func main() {
 	http.HandleFunc("/", http.HandlerFunc(handler))
 
 	errs := RunServer(":"+port, ":"+sslport, map[string]string{
-	"cert": "cert.pem",
-	"key":  "key.pem",
+		"cert": "/etc/tlssecret/client.crt",
+		"key":  "/etc/tlssecret/client.key",
 	})
 
 	// This will run forever until channel receives error
 	select {
 	case err := <-errs:
-	log.Printf("Could not start serving service due to (error: %s)", err)
+		log.Printf("Could not start serving service due to (error: %s)", err)
 	}
 
 }
@@ -139,9 +139,8 @@ func serveHTTP(wr http.ResponseWriter, req *http.Request) {
 		for k, v := range headerjson {
 			//fmt.Printf("%s = %s", k, v)
 			wr.Header().Add(k, v.(string))
-	    	}
+		}
 	}
-
 
 	wr.Header().Add("Content-Type", "text/plain")
 	wr.WriteHeader(200)
@@ -194,9 +193,9 @@ func serveHTTP(wr http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(wr, "  Host: %s\n", req.Host)
 
 	var reqheaders []string
-	for k,vs := range req.Header {
+	for k, vs := range req.Header {
 		for _, v := range vs {
-			reqheaders = append(reqheaders, (fmt.Sprintf("%s: %s", k,v)))
+			reqheaders = append(reqheaders, (fmt.Sprintf("%s: %s", k, v)))
 		}
 	}
 	sort.Strings(reqheaders)
@@ -209,9 +208,9 @@ func serveHTTP(wr http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(wr, "\n\n")
 	fmt.Fprintln(wr, "-> Response Headers | \n")
 	var respheaders []string
-	for k,vs := range wr.Header() {
+	for k, vs := range wr.Header() {
 		for _, v := range vs {
-			respheaders = append(respheaders, (fmt.Sprintf("%s: %s", k,v)))
+			respheaders = append(respheaders, (fmt.Sprintf("%s: %s", k, v)))
 		}
 	}
 	sort.Strings(respheaders)
@@ -228,7 +227,7 @@ func serveHTTP(wr http.ResponseWriter, req *http.Request) {
 	sort.Strings(envs)
 	for _, e := range envs {
 		pair := strings.Split(e, "=")
-		fmt.Fprintf(wr, "  %s=%s\n", pair[0],pair[1])
+		fmt.Fprintf(wr, "  %s=%s\n", pair[0], pair[1])
 	}
 
 	// Lets get resolv.conf
@@ -252,7 +251,6 @@ func serveHTTP(wr http.ResponseWriter, req *http.Request) {
 	hostsstr := string(hostsfile) // convert content to a 'string'
 
 	fmt.Fprintf(wr, "-> Contents of /etc/hosts | \n%s\n\n", hostsstr) // print the content as a 'string'
-
 
 	fmt.Fprintln(wr, "")
 	curtime := time.Now().UTC()

@@ -1,6 +1,8 @@
-hash: c927181c2fe8c45a689ca23ad2552eb27980060ab125b41b979a17e677f1ddbd
-updated: 2016-08-28T22:00:45.246106868+10:00
+hash: 5d2e4f8f34a99fe998b4af0bea6b3e4a00fbacd946a59473ae70b43bbf1a1b11
+updated: 2019-03-03T13:14:36.154600239-08:00
 imports:
 - name: github.com/gorilla/websocket
-  version: 1f512fc3f05332ba7117626cdfb4e07474e58e60
+  version: 66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d
+- name: github.com/JulienBalestra/kube-csr
+  version: 672c27d23f6374190d5147ead031ddbe82f915b2
 testImports: []
