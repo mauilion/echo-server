@@ -7,7 +7,7 @@ WORKDIR ${pkg}
 RUN glide install
 RUN find .
 WORKDIR ${pkg}/cmd/echo-server
-RUN CGO_ENABLED=0 GOOS=linux go build --ldflags="-s -w" -o /opt/echo-server .
+RUN CGO_ENABLED=0 GOOS=linux go build --ldflags="-linkmode external -extldflags -static -s -w" -a -o /opt/echo-server .
 
 
 FROM scratch
